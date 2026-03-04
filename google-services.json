@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "208274368343",
+    "project_id": "worklink-mb",
+    "storage_bucket": "worklink-mb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208274368343:android:97f494ad00f52e694cc012",
+        "android_client_info": {
+          "package_name": "com.worklink.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5MXugPt8ugew4MpozyhQGuBWmjbZrTuY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -9,21 +9,29 @@ export default function JobseekerTabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: true,
         tabBarActiveTintColor: ACTIVE_COLOR,
         tabBarInactiveTintColor: INACTIVE_COLOR,
         tabBarStyle: {
           backgroundColor: "#FFFFFF",
-          height: 65, 
-          paddingBottom: 10,
+          borderTopWidth: 1,
+          borderTopColor: "#E5E7EB",
+          height: 72,
           paddingTop: 8,
+          paddingBottom: 8,
+          elevation: 0,
+          shadowOpacity: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 9, 
-          fontWeight: "600",
+          fontSize: 10,
+          marginTop: 2,
+          textTransform: "uppercase",
+        },
+        tabBarIconStyle: {
+          marginBottom: -2,
         },
       }}
     >
-      {/* 1. home.js is a direct file, so "home" is correct */}
       <Tabs.Screen
         name="home"
         options={{

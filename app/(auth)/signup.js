@@ -130,7 +130,6 @@ export default function SignUpScreen() {
                   onChangeText={setLastName}
                 />
               </View>
-
               <View style={styles.halfInput}>
                 <AppInput
                   label="First Name"
@@ -203,7 +202,6 @@ export default function SignUpScreen() {
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>Already have an account? </Text>
-
             <TouchableOpacity onPress={handleSignIn}>
               <Text style={styles.footerLink}>Sign In</Text>
             </TouchableOpacity>
@@ -218,36 +216,30 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.background,
   },
-
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 32,
     paddingBottom: 24,
   },
-
   header: {
     alignItems: "center",
     marginBottom: 24,
   },
-
   logo: {
     width: 100,
     height: 100,
   },
-
   title: {
     fontSize: 22,
     fontWeight: "700",
     color: COLORS.text,
     marginBottom: 24,
   },
-
   form: {
     borderRadius: 16,
     backgroundColor: COLORS.background,
@@ -284,12 +276,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   footerText: {
     fontSize: 14,
     color: COLORS.textSecondary,
   },
-
   footerLink: {
     fontSize: 14,
     color: COLORS.primary,

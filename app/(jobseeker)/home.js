@@ -2,8 +2,6 @@ import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
-  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,12 +9,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-// Firebase
-import { signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../../src/firebase/firebaseConfig";
-
 import AICard from "../../src/components/cards/AICard";
 import JobCard from "../../src/components/cards/JobCard";
 import TrainingCard from "../../src/components/cards/TrainingCard";
@@ -28,30 +20,14 @@ import COLORS from "../../src/utils/colors";
 export default function JobseekerHomeScreen() {
   const router = useRouter();
   const { role, loading: loadingRole } = useUserRole();
-  
-  // State
   const [jobs, setJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
-  const [userData, setUserData] = useState(null);
-  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadJobs = async () => {
       try {
-        // 1. Fetch User Profile for initials and name
-        const user = auth.currentUser;
-        if (user) {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            setUserData(userDoc.data());
-          }
-        }
-
-        // 2. Fetch Job Posts
         const data = await getJobPosts();
         setJobs(data || []);
-      } catch (error) {
-        console.error("Error fetching home data:", error);
       } finally {
         setLoadingJobs(false);
       }

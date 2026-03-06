@@ -9,26 +9,31 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+// Firebase
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../src/firebase/firebaseConfig";
+
 import AppInput from "../../src/components/ui/AppInput";
 import PrimaryButton from "../../src/components/ui/PrimaryButton";
 import COLORS from "../../src/utils/colors";
 
-// Firebase
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../src/firebase/firebaseConfig";
-
 export default function LoginScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  
+  // State
+  const [email, setEmail] = useState(""); // Changed from emailOrPhone for Firebase Auth clarity
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+  // --- Handlers ---
+
+  const handleSignIn = async () => {
     if (!email || !password) {
-      Alert.alert("Error", "Please enter both email and password.");
+      Alert.alert("Error", "Please enter your email and password.");
       return;
     }
 
@@ -36,31 +41,46 @@ export default function LoginScreen() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       
-      // If successful, navigate to your main app layout
-      // Using replace so they can't "go back" to login
-      router.replace("/(tabs)"); 
+      // Success: Navigate to jobseeker home
+      router.replace("/(jobseeker)/home");
     } catch (error) {
-      let errorMessage = "An error occurred during sign in.";
+      console.error(error);
+      let message = "An unexpected error occurred.";
       
-      if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
-        errorMessage = "Invalid email or password.";
-      } else if (error.code === "auth/invalid-email") {
-        errorMessage = "Please enter a valid email address.";
+      if (error.code === "auth/invalid-credential") {
+        message = "Invalid email or password. Please try again.";
+      } else if (error.code === "auth/user-not-found") {
+        message = "No account found with this email.";
       }
-
-      Alert.alert("Login Failed", errorMessage);
+      
+      Alert.alert("Login Failed", message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignUp = () => {
-    router.push("/(auth)/signup");
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert(
+        "Email Required", 
+        "Please enter your email address first so we can send you a reset link."
+      );
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      Alert.alert(
+        "Reset Link Sent", 
+        "Check your inbox! We've sent an email to help you reset your password."
+      );
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
   };
 
-  const handleForgotPassword = () => {
-    // You can add logic for password reset here
-    Alert.alert("Coming Soon", "Password reset functionality is on the way!");
+  const handleSignUp = () => {
+    router.push("/(auth)/signup");
   };
 
   return (
@@ -71,49 +91,46 @@ export default function LoginScreen() {
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
-            <Image
-              source={require("../../assets/images/LOGO/Logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
+          <View>
+            <View style={styles.header}>
+              <Image
+                source={require("../../assets/images/LOGO/Logo.png")}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              <Text style={styles.tagline}>Built for Everyone</Text>
+            </View>
 
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to continue</Text>
+            <View style={styles.form}>
+              <AppInput
+                label="Email Address"
+                placeholder="Enter your email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              <AppInput
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
 
-          <View style={styles.form}>
-            <AppInput
-              label="Email Address"
-              placeholder="Enter your email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+              <TouchableOpacity 
+                style={styles.forgotButton} 
+                onPress={handleForgotPassword}
+              >
+                <Text style={styles.forgotText}>Forgot password?</Text>
+              </TouchableOpacity>
 
-            <AppInput
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-
-            <TouchableOpacity 
-              onPress={handleForgotPassword} 
-              style={styles.forgotPasswordContainer}
-            >
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
-
-            <View style={styles.buttonWrapper}>
               <PrimaryButton 
-                label={loading ? "Signing In..." : "Login"} 
-                onPress={handleLogin} 
+                label={loading ? "Signing In..." : "Sign In"} 
+                onPress={handleSignIn} 
                 disabled={loading}
               />
             </View>
@@ -132,7 +149,9 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
+  flex: {
+    flex: 1,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -140,51 +159,41 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: 32,
     paddingBottom: 24,
+    justifyContent: "space-between", // Keeps footer at the bottom
   },
   header: {
     alignItems: "center",
     marginBottom: 32,
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 80,
+    height: 80,
+    marginBottom: 12,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
+  tagline: {
+    fontSize: 18,
+    fontWeight: "600",
     color: COLORS.text,
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
-    textAlign: "center",
-    marginBottom: 32,
-    marginTop: 8,
   },
   form: {
     marginBottom: 24,
   },
-  forgotPasswordContainer: {
-    alignItems: "flex-end",
-    marginTop: -8,
+  forgotButton: {
+    alignSelf: "flex-end",
     marginBottom: 24,
   },
-  forgotPasswordText: {
-    fontSize: 14,
+  forgotText: {
+    fontSize: 13,
     color: COLORS.primary,
     fontWeight: "500",
-  },
-  buttonWrapper: {
-    marginTop: 8,
   },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: "auto",
+    marginTop: 20,
   },
   footerText: {
     fontSize: 14,
